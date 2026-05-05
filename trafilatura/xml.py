@@ -251,6 +251,18 @@ def validate_tei(xmldoc: _Element) -> bool:
     return result
 
 
+def _wrap_markdown_text(text: str, marker: str) -> str:
+    """Wrap text in Markdown markers, preserving whitespace when delimiters need flanking."""
+    if marker in {"*", "**", "__"}:
+        stripped = text.strip()
+        if not stripped:
+            return text
+        start = len(text) - len(text.lstrip())
+        end = len(text.rstrip())
+        return f"{text[:start]}{marker}{stripped}{marker}{text[end:]}"
+    return f"{marker}{text}{marker}"
+
+
 def replace_element_text(element: _Element, include_formatting: bool) -> str:
     """Determine element text based on just the text of the element. One must deal with the tail separately."""
     elem_text = element.text or ""
@@ -265,11 +277,11 @@ def replace_element_text(element: _Element, include_formatting: bool) -> str:
                 number = 2
             elem_text = f'{"#" * number} {elem_text}'
         elif element.tag == "del":
-            elem_text = f"~~{elem_text}~~"
+            elem_text = _wrap_markdown_text(elem_text, "~~")
         elif element.tag == "hi":
             rend = element.get("rend")
             if rend in HI_FORMATTING:
-                elem_text = f"{HI_FORMATTING[rend]}{elem_text}{HI_FORMATTING[rend]}"
+                elem_text = _wrap_markdown_text(elem_text, HI_FORMATTING[rend])
         elif element.tag == "code":
             if "\n" in elem_text or element.xpath(".//lb"):  # Handle <br> inside <code>
                 # Convert <br> to \n within code blocks
@@ -278,7 +290,7 @@ def replace_element_text(element: _Element, include_formatting: bool) -> str:
                     lb.getparent().remove(lb)
                 elem_text = f"```\n{elem_text}\n```\n"
             else:
-                elem_text = f"`{elem_text}`"
+                elem_text = _wrap_markdown_text(elem_text, "`")
     # handle links
     if element.tag == "ref":
         if elem_text:
