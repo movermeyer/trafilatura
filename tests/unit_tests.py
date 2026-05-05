@@ -431,6 +431,13 @@ trafilatura.extract("")
     """)
     my_result = extract(my_document, output_format='markdown', include_links=True, config=ZERO_CONFIG)
     assert my_result == '- Number 0\n- Number [1](test.html)\n- [Number 2](test.html)n2\n- Number 3\n- Number 4 n4\n\nTest'
+    # markdown formatting should move whitespace outside emphasis markers
+    # https://github.com/adbar/trafilatura/issues/843
+    my_document = html.fromstring(
+        '<html><body><article><p>This is <em>really </em>hard to do.</p><p>Then a <strong>bold </strong>word.</p><p>Now <em> spaced both sides </em> here.</p></article></body></html>'
+    )
+    my_result = extract(my_document, output_format='markdown', config=ZERO_CONFIG)
+    assert my_result == 'This is *really* hard to do.\n\nThen a **bold** word.\n\nNow *spaced both sides* here.'
     # XML and Markdown formatting within <p>-tag
     my_document = html.fromstring('<html><body><p><b>bold</b>, <i>italics</i>, <tt>tt</tt>, <strike>deleted</strike>, <u>underlined</u>, <a href="test.html">link</a> and additional text to bypass detection.</p></body></html>')
     my_result = extract(copy(my_document), fast=True, include_formatting=False, config=ZERO_CONFIG)
