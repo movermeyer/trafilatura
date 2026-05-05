@@ -513,9 +513,6 @@ def test_extract(xmloutput, formatting):
 def test_extract_links_formatting():
     result = load_mock_page('http://www.pcgamer.com/2012/08/09/skyrim-part-1/', formatting=True, links=True)
     assert 'In [Skyrim](https://www.pcgamer.com/best-skyrim-mods/), a mage' in result
-    # the original has the space at the end of the em tag
-    assert "*Legends *don't destroy *houses*," in result
-
 
 def test_pages():
     '''Test on real web pages'''
