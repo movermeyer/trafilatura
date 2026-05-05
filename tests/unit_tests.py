@@ -438,6 +438,13 @@ trafilatura.extract("")
     )
     my_result = extract(my_document, output_format='markdown', config=ZERO_CONFIG)
     assert my_result == 'This is *really* hard to do.\n\nThen a **bold** word.\n\nNow *spaced both sides* here.'
+    # markdown formatting in list items should preserve spaces after inline elements
+    # https://github.com/adbar/trafilatura/issues/845
+    my_document = html.fromstring(
+        '<html><body><article><ol><li>Foo <em>bar</em> baz.</li></ol></article></body></html>'
+    )
+    my_result = extract(my_document, output_format='markdown', config=ZERO_CONFIG)
+    assert my_result == '- Foo *bar* baz.'
     # XML and Markdown formatting within <p>-tag
     my_document = html.fromstring('<html><body><p><b>bold</b>, <i>italics</i>, <tt>tt</tt>, <strike>deleted</strike>, <u>underlined</u>, <a href="test.html">link</a> and additional text to bypass detection.</p></body></html>')
     my_result = extract(copy(my_document), fast=True, include_formatting=False, config=ZERO_CONFIG)
