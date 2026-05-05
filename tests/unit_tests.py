@@ -438,6 +438,13 @@ trafilatura.extract("")
     )
     my_result = extract(my_document, output_format='markdown', config=ZERO_CONFIG)
     assert my_result == 'This is *really* hard to do.\n\nThen a **bold** word.\n\nNow *spaced both sides* here.'
+    # markdown formatting should handle nested em/strong tags without adding whitespace
+    # https://github.com/adbar/trafilatura/issues/844
+    my_document = html.fromstring(
+        '<html><body><article><em><strong>foo</strong></em><strong><em>foo</em></strong></article></body></html>'
+    )
+    my_result = extract(my_document, output_format='markdown', config=ZERO_CONFIG)
+    assert my_result == 'This is *really* hard to do.\n\nThen a **bold** word.\n\nNow *spaced both sides* here.'
     # markdown formatting in list items should preserve spaces after inline elements
     # https://github.com/adbar/trafilatura/issues/845
     my_document = html.fromstring(
